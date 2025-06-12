@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>সদস্য তালিকা ও এডমিন প্যানেল</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Noto Sans Bengali', sans-serif;
+      background-color: #e9ecef;
+      color: #343a40;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #495057;
+      font-weight: 700;
+      font-size: 3rem;
+      margin-bottom: 20px;
+      text-align: center;
+      text-shadow: 1px 1px 5px #868e96;
+    }
+
+    header {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 30px;
+    }
+    #loginIcon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 10px;
+      display: flex; /* যুক্ত করা হয়েছে */
+      align-items: center; /* আইকন এবং টেক্সট alinhamento */
+    }
+    #loginIcon img {
+      width: 30px; /* আইকনের প্রস্থ */
+      height: 30px; /* আইকনের উচ্চতা */
+    }
+    #logoutBtn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      margin-left: 10px;
+      display: none; /* Initially hidden */
+    }
+    #logoutBtn:hover {
+      background-color: #0056b3;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+
+    /* সদস্য কার্ড ডিজাইন */
+    .member-list {
+      max-width: 800px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
+      gap: 24px;
+      margin-bottom: 50px;
+    }
+    .member-card {
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+    }
+    .member-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+    .member-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #007bff;
+      margin-bottom: 15px;
+    }
+    .member-info p {
+      margin: 6px 0;
+      font-size: 1rem;
+      color: #495057;
+      font-weight: 600;
+    }
+    .member-info strong {
+      color: #007bff;
+    }
+    
+    /* ডিলিট বাটন */
+    .delete-btn {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background-color: #dc3545;
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.25s ease;
+    }
+    .delete-btn:hover {
+      background-color: #c82333;
+    }
+
+    /* আনুন ফরম */
+    form#memberForm {
+      background: #ffffff;
+      max-width: 700px;
+      width: 100%;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      margin-bottom: 60px;
+    }
+    form#memberForm .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    form#memberForm label {
+      flex: 1 1 150px;
+      font-weight: 700;
+      color: #007bff;
+      padding-top: 10px;
+    }
+    form#memberForm input, form#memberForm button {
+      flex: 3 1 300px;
+      padding: 14px 20px;
+      border: 2px solid #ced4da;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    form#memberForm input:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 8px #007bfff0;
+    }
+    form#memberForm button {
+      background-color: #007bff;
+      color: white;
+      padding: 16px 0;
+      font-weight: 700;
+      font-size: 1.15rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+      transition: background-color 0.3s ease;
+    }
+    form#memberForm button:hover {
+      background-color: #0056b3;
+    }
+
+    /* লগইন মডাল */
+    #loginModal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+    #loginModal.active {
+      display: flex;
+    }
+    #loginForm {
+      background: #ffffff;
+      padding: 32px 30px;
+      border-radius: 16px;
+      width: 400px;
+      box-shadow: 0 10px 30px rgba(0, 123, 255, 0.35);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    #loginForm label {
+      font-weight: 700;
+      color: #007bff;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+    #loginForm input {
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 2px solid #ced4da;
+      font-size: 1.1rem;
+      margin-bottom: 28px;
+      transition: border-color 0.3s ease;
+    }
+    #loginForm input:focus {
+      border-color: #007bff;
+    }
+    #loginForm button {
+      background-color: #007bff;
+      color: white;
+      font-weight: 700;
+      border: none;
+      padding: 14px;
+      font-size: 1.15rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #loginForm button:hover {
+      background-color: #0056b3;
+    }
+    #loginModal .closeBtn {
+      background: none;
+      border: none;
+      font-size: 1.6rem;
+      color: #343a40;
+      position: absolute;
+      top: 12px;
+      right: 20px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: color 0.3s ease;
+    }
+    #loginModal .closeBtn:hover {
+      color: #007bff;
+    }
+
+    /* ফুটার */
+    footer {
+      margin-top: auto;
+      padding: 20px 0;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Responsive */
+    @media (max-width: 720px) {
+      .member-list {
+        grid-template-columns: 1fr;
+      }
+      form#memberForm .input-group {
+        flex-direction: column;
+      }
+      form#memberForm label, form#memberForm input {
+        flex: 1 1 100%;
+      }
+      h1 {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_j1xa3-vlCo-Tk-WsX76mAs-0hw5O36g",
+      authDomain: "userdata-26268.firebaseapp.com",
+      projectId: "userdata-26268",
+      storageBucket: "userdata-26268.firebasestorage.app",
+      messagingSenderId: "787913440255",
+      appId: "1:787913440255:web:2f7fd018d48c5a8dc945ca",
+      measurementId: "G-Y134KNYE91"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app); // Initialize Firestore
+
+    let members = [];
+
+    // Fetch members from Firestore
+    async function fetchMembers() {
+      const snapshot = await getDocs(collection(db, "members"));
+      members = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderMembers();
+    }
+
+    // Add a new member to Firestore
+    async function addMember(member) {
+      const docRef = await addDoc(collection(db, "members"), member);
+      return docRef.id; // Return document ID
+    }
+
+    // Delete a member from Firestore
+    async function deleteMember(id) {
+      await deleteDoc(doc(db, "members", id));
+      fetchMembers(); // Refresh the list after deletion
+    }
+
+    // Render members in the UI
+    function renderMembers() {
+      const memberList = document.getElementById('memberList');
+      memberList.innerHTML = '';
+      if(members.length === 0){
+        memberList.innerHTML = '<p style="text-align:center; font-weight:600; color:#777;">কোন সদস্য নেই</p>';
+        return;
+      }
+      members.forEach(m => {
+        const card = document.createElement('div');
+        card.classList.add('member-card');
+
+        let imgSrc = m.image || 'https://via.placeholder.com/120?text=ছবি';
+
+        card.innerHTML = `
+          <img src="${imgSrc}" alt="ছবি" class="member-img" />
+          <div class="member-info">
+            <p><strong>নাম:</strong> ${m.name}</p>
+            <p><strong>পিতা:</strong> ${m.father}</p>
+            <p><strong>মাতা:</strong> ${m.mother}</p>
+            <p><strong>এনআইডি:</strong> ${m.nid}</p>
+            <p><strong>মোবাইল:</strong> ${m.mobile}</p>
+            <p><strong>ঠিকানা:</strong> ${m.address}</p>
+            <p><strong>সদস্য নম্বর:</strong> ${m.memberNo}</p>
+          </div>
+        `;
+
+        // If logged in, show delete button
+        if(localStorage.getItem('loggedIn') === 'true'){
+          const delBtn = document.createElement('button');
+          delBtn.className = 'delete-btn';
+          delBtn.textContent = 'মুছুন';
+          delBtn.title = 'সদস্য মুছুন';
+          delBtn.addEventListener('click', () => {
+            if(confirm('আপনি কি নিশ্চিত সদস্য মুছতে চান?')){
+              deleteMember(m.id);
+            }
+          });
+          card.appendChild(delBtn);
+        }
+        memberList.appendChild(card);
+      });
+    }
+
+    // On load
+    fetchMembers();
+
+    // Handle member form submission
+    document.getElementById('memberForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const father = document.getElementById('father').value.trim();
+      const mother = document.getElementById('mother').value.trim();
+      const nid = document.getElementById('nid').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const memberNo = document.getElementById('memberNo').value.trim();
+      const imageFile = document.getElementById('imageFile').files[0];
+
+      // Validate inputs here...
+
+      // Prepare member data
+      const newMember = {
+        name,
+        father,
+        mother,
+        nid,
+        mobile,
+        address,
+        memberNo,
+        image: '' // Add image handling here if needed
+      };
+
+      // Save member
+      await addMember(newMember);
+      document.getElementById('memberForm').reset();
+      fetchMembers(); // Refresh member list
+    });
+
+    // Login/logout handling (not integrated yet)
+    const loginIcon = document.getElementById('loginIcon');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginModal = document.getElementById('loginModal');
+    const loginForm = document.getElementById('loginForm');
+
+    loginIcon.addEventListener('click', () => {
+      loginModal.classList.add('active');
+      document.getElementById('passwordInput').value = '';
+      document.getElementById('passwordInput').focus();
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      if(confirm('আপনি কি লগআউট করতে চান?')){
+        localStorage.removeItem('loggedIn');
+        updateUI();
+      }
+    });
+
+    // Close login modal
+    loginForm.querySelector('.closeBtn').addEventListener('click', () => {
+      loginModal.classList.remove('active');
+    });
+
+    // Update UI based on login state
+    function updateUI() {
+      const loggedIn = localStorage.getItem('loggedIn') === 'true';
+      if(loggedIn){
+        loginIcon.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+        document.getElementById('memberForm').style.display = 'block';
+      } else {
+        loginIcon.style.display = 'inline-block';
+        logoutBtn.style.display = 'none';
+        document.getElementById('memberForm').style.display = 'none';
+      }
+      renderMembers();
+    }
+
+    // Login form submit
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const passInput = document.getElementById('passwordInput').value.trim();
+
+      // Handle simple authentication (You can replace this with actual authentication like Firebase Auth)
+      if(passInput === "1234"){ // Sample simple authentication
+        localStorage.setItem('loggedIn', 'true');
+        loginModal.classList.remove('active');
+        updateUI();
+        alert('সফলভাবে লগইন সম্পন্ন হয়েছে!');
+      } else {
+        alert('ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।');
+      }
+    });
+
+    // Load the UI for the first time
+    updateUI();
+  </script>
+</head>
+<body>
+
+  <h1>নতুন দিগন্ত সংগঠন - সদস্য তালিকা</h1>
+
+  <header>
+    <button id="loginIcon">
+      <img src="https://shorturl.at/28t7F" alt="" />
+    </button>
+    <button id="logoutBtn">লগআউট</button>
+  </header>
+
+  <div class="member-list" id="memberList"></div>
+
+  <form id="memberForm" style="display:none;">
+    <div class="input-group">
+      <label for="name">নাম</label>
+      <input type="text" id="name" placeholder="নাম লিখুন" required />
+    </div>
+    <div class="input-group">
+      <label for="father">পিতার নাম</label>
+      <input type="text" id="father" placeholder="পিতার নাম লিখুন" required />
+    </div>
+    <div class="input-group">
+      <label for="mother">মাতার নাম</label>
+      <input type="text" id="mother" placeholder="মাতার নাম লিখুন" required />
+    </div>
+    <div class="input-group">
+      <label for="nid">এনআইডি নম্বর</label>
+      <input type="text" id="nid" placeholder="এনআইডি নম্বর" required />
+    </div>
+    <div class="input-group">
+      <label for="mobile">মোবাইল</label>
+      <input type="text" id="mobile" placeholder="০১৭xxxxxxxx" required />
+    </div>
+    <div class="input-group">
+      <label for="address">ঠিকানা</label>
+      <input type="text" id="address" placeholder="ঠিকানা লিখুন" required />
+    </div>
+    <div class="input-group">
+      <label for="memberNo">সদস্য নম্বর</label>
+      <input type="text" id="memberNo" placeholder="অনন্য সদস্য নম্বর" required />
+    </div>
+    <div class="input-group">
+      <label for="imageFile">ছবি (২MB এর কম)</label>
+      <input type="file" id="imageFile" accept="image/*" />
+    </div>
+    <button type="submit">সদস্য যোগ করুন</button>
+  </form>
+
+  <!-- Login Modal -->
+  <div id="loginModal">
+    <form id="loginForm">
+      <button type="button" class="closeBtn">&times;</button>
+      <label for="passwordInput">পাসওয়ার্ড দিন</label>
+      <input type="password" id="passwordInput" autocomplete="off" />
+      <button type="submit">লগইন</button>
+    </form>
+  </div>
+
+  <footer>
+    <p>&copy; ২০২৫ নতুন দিগন্ত সংগঠন. সর্বস্বত্ব সংরক্ষিত।</p>
+    <p>যোগাযোগ: +৮৮০ ১৭১১-xxxxxxx | ইমেইল: info@notundigonto.org</p>
+  </footer>
+
+</body>
+</html>
